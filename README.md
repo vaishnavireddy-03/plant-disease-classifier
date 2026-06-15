@@ -130,8 +130,6 @@ Plant-Disease-Classifier/
 
 ## Author
 
-Vaishnavi Mudda
+Vaishnavi Reddy
 
-BITS Pilani Hyderabad Campus
 
-M.Sc. Physics + ENI
