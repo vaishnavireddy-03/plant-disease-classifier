@@ -65,12 +65,13 @@ def load_model():
 
     model = PlantCNN(num_classes=5)
 
-    model.load_state_dict(
-        torch.load(
-            "plantcnn.pth",
-            map_location=torch.device("cpu")
-        )
+   model.load_state_dict(
+    torch.load(
+        "plantcnn.pth",
+        map_location="cpu",
+        weights_only=False
     )
+)
 
     model.eval()
 
