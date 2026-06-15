@@ -5,29 +5,29 @@ from torchvision import transforms
 from PIL import Image
 
 # -----------------------------
-# Model Architecture
+# CNN Model
 # -----------------------------
 
 class PlantCNN(nn.Module):
 
-    def __init__(self, num_classes=5):
+    def __init__(self, num_classes=2):
 
         super().__init__()
 
-        self.conv1 = nn.Conv2d(3,16,3)
+        self.conv1 = nn.Conv2d(3, 16, 3)
         self.pool = nn.MaxPool2d(2)
 
-        self.conv2 = nn.Conv2d(16,32,3)
+        self.conv2 = nn.Conv2d(16, 32, 3)
 
-        self.conv3 = nn.Conv2d(32,64,3)
+        self.conv3 = nn.Conv2d(32, 64, 3)
 
-        self.fc1 = nn.Linear(64*28*28,128)
+        self.fc1 = nn.Linear(64 * 28 * 28, 128)
 
-        self.fc2 = nn.Linear(128,num_classes)
+        self.fc2 = nn.Linear(128, num_classes)
 
         self.relu = nn.ReLU()
 
-    def forward(self,x):
+    def forward(self, x):
 
         x = self.pool(self.relu(self.conv1(x)))
 
@@ -35,7 +35,7 @@ class PlantCNN(nn.Module):
 
         x = self.relu(self.conv3(x))
 
-        x = x.view(x.size(0),-1)
+        x = x.view(x.size(0), -1)
 
         x = self.relu(self.fc1(x))
 
@@ -45,15 +45,12 @@ class PlantCNN(nn.Module):
 
 
 # -----------------------------
-# Class Names
+# Classes from training
 # -----------------------------
 
 classes = [
-    "Potato Early Blight",
-    "Potato Healthy",
-    "Tomato Early Blight",
-    "Tomato Healthy",
-    "Tomato Late Blight"
+    "PlantVillage",
+    "plantvillage"
 ]
 
 # -----------------------------
@@ -63,7 +60,7 @@ classes = [
 @st.cache_resource
 def load_model():
 
-    model = PlantCNN(num_classes=5)
+    model = PlantCNN(num_classes=2)
 
     state_dict = torch.load(
         "plantcnn.pth",
@@ -71,10 +68,7 @@ def load_model():
         weights_only=False
     )
 
-    st.write("Keys loaded from model:")
-    st.write(list(state_dict.keys())[:10])
-
-    model.load_state_dict(state_dict, strict=False)
+    model.load_state_dict(state_dict)
 
     model.eval()
 
@@ -87,11 +81,11 @@ model = load_model()
 # -----------------------------
 
 transform = transforms.Compose([
-    transforms.Resize((128,128)),
+    transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize(
-        mean=[0.485,0.456,0.406],
-        std=[0.229,0.224,0.225]
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
     )
 ])
 
@@ -102,12 +96,12 @@ transform = transforms.Compose([
 st.title("🌿 Plant Disease Classifier")
 
 st.write(
-    "Upload a plant leaf image to predict the disease."
+    "Upload a plant leaf image and the model will make a prediction."
 )
 
 uploaded_file = st.file_uploader(
     "Choose an image",
-    type=["jpg","jpeg","png"]
+    type=["jpg", "jpeg", "png"]
 )
 
 if uploaded_file is not None:
@@ -127,7 +121,7 @@ if uploaded_file is not None:
 
         output = model(img_tensor)
 
-        _, prediction = torch.max(output,1)
+        _, prediction = torch.max(output, 1)
 
     predicted_class = classes[prediction.item()]
 
